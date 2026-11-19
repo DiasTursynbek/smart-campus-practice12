@@ -1,0 +1,5 @@
+claude_code_version: 2.1.322
+model: claude-sonnet-5-5
+tools available: ['Edit', 'Glob', 'Grep', 'Read']
+tool calls: Read(AGENTS.md), Read(src/components/ExplainPanel.tsx), Read(src/explain/explainAvailability.ts), Edit(src/components/ExplainPanel.tsx), Edit(src/components/ExplainPanel.tsx)
+duration: 14.3 s, turns: 6

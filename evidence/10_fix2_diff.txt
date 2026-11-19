@@ -1,0 +1,42 @@
+--- ../ai/snap_before_fix2/src/components/ExplainPanel.tsx	2026-11-19 15:01:45
++++ src/components/ExplainPanel.tsx	2026-11-19 15:10:01
+@@ -9,6 +9,14 @@
+ 
+ const MODES: MockMode[] = ["normal", "slow", "error", "invalid"];
+ 
++// Maps the error strings produced by explainAvailability to a user-facing note.
++function fallbackNote(error: string | undefined): string {
++  if (error?.startsWith("Model timed out")) return "The model did not answer in time.";
++  if (error?.startsWith("Invalid model output:")) return "The model's answer was rejected by validation.";
++  if (error?.startsWith("Invalid input:")) return "The request could not be sent to the model.";
++  return "The model is unavailable.";
++}
++
+ export function ExplainPanel({ input }: Props) {
+   const [mode, setMode] = useState<MockMode>("normal");
+   const [loading, setLoading] = useState(false);
+@@ -68,15 +76,19 @@
+       </div>
+ 
+       {result && (
+-        <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4" role="status">
++        <div
++          className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4"
++          role="status"
++          data-source={result.source}
++        >
+           <p className="mb-1 text-xs font-semibold text-slate-500">
+-            AI-generated explanation (mock model) — not a booking confirmation
++            {result.source === "model"
++              ? "AI-generated explanation (mock model) — not a booking confirmation"
++              : "Standard explanation (not AI-generated) — not a booking confirmation"}
+           </p>
+           <p className="text-sm text-slate-700">{result.explanation}</p>
+           {result.source === "fallback" && (
+-            <p className="mt-2 text-xs text-amber-700">
+-              Model unavailable — showing a standard explanation.
+-            </p>
++            <p className="mt-2 text-xs text-amber-700">{fallbackNote(result.error)}</p>
+           )}
+         </div>
+       )}

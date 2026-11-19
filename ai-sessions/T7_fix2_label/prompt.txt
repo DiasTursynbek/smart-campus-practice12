@@ -1,0 +1,8 @@
+Read the root AGENTS.md first and follow it (do not assume it was loaded automatically).
+
+Confirmed review finding F3 (AC5) in src/components/ExplainPanel.tsx: the heading "AI-generated explanation (mock model) — not a booking confirmation" is shown for every result, also when result.source === "fallback", where the text is a fixed standard sentence and not model output. For invalid input the note "Model unavailable — showing a standard explanation." is also misleading. I reproduced it in the browser with the "slow", "error" and "invalid" modes.
+
+Make the smallest change in ExplainPanel.tsx only:
+- source "model": keep the heading "AI-generated explanation (mock model) — not a booking confirmation".
+- source "fallback": heading "Standard explanation (not AI-generated) — not a booking confirmation", and a note chosen by the error: timeout -> "The model did not answer in time.", rejected model output -> "The model's answer was rejected by validation.", invalid input -> "The request could not be sent to the model.", any other error -> "The model is unavailable." Keep the existing colours/layout; add a data-source attribute ("model" | "fallback") on the result box so it can be tested.
+Use result.error to choose the note; read src/explain/explainAvailability.ts to see the exact error strings it returns. Do not change any other file or behaviour. You cannot run commands. Describe the change and list anything I did not ask for.

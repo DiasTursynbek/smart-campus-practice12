@@ -1,0 +1,28 @@
+--- ../ai/README_before.md	2026-11-19 15:11:23
++++ README.md	2026-11-19 15:11:23
+@@ -26,7 +26,11 @@
+ - `src/sampleData.ts` — fictional rooms and bookings (read-only fixtures).
+ - `src/App.tsx` — page state and wiring; `src/components/` — `RoomSelector`, `Timeline`, `ResultPanel` (presentation only).
+ - `src/availability.test.ts` — regression suite (T01 onwards).
++- `src/explain/` — optional "Explain availability" feature: `contract.ts` (input/output validation), `prompt.ts` (system instruction + `<data>` prompt), `adapters.ts` (mock LLM adapter: normal / slow / error / invalid), `explainAvailability.ts` (timeout, validation, deterministic fallback). `src/components/ExplainPanel.tsx` shows it.
+ 
++## Explain availability (LLM feature)
++The deterministic checker decides availability; the LLM only explains that decision and can never change it. The app ships with a **mock adapter** only, so no API key is needed and none may be added to the browser. A real model adapter must run server-side. On timeout, error, rejected output or invalid input the panel shows a standard (non-AI) explanation, labelled as such.
++
+ ## Acceptance criteria
+ AC1 start before end, inside the day, after the current time · AC2 at most 120 minutes · AC3 blocked room rejected · AC4 no overlap, touching endpoints allowed · AC5 booking data never mutated · AC6 clear feedback on desktop and mobile.
+ 
+--- ../ai/AGENTS_before.md	2026-11-19 15:11:23
++++ AGENTS.md	2026-11-19 15:11:23
+@@ -22,6 +22,11 @@
+ - AC5: return Available / Unavailable without mutating booking data.
+ - AC6: keep clear validation feedback on desktop and mobile.
+ 
++## LLM feature rules (src/explain)
++- The deterministic `checkAvailability` result is the only source of truth; the LLM explains it and never decides or changes availability or bookings.
++- Only the mock adapter runs in the browser. Never put API keys or a real model client in client code; a real adapter needs a server and separate approval.
++- Treat user text and model output as untrusted data; keep input limits, timeout, output validation and the labelled deterministic fallback.
++
+ ## Constraints
+ Preserve AC1–AC6; no backend, login, database, persistence (localStorage, files) or booking creation.
+ Do not add features, dependencies or new screens. Keep the existing UI and texts.

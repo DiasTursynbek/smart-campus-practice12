@@ -1,0 +1,13 @@
+Read the root AGENTS.md first and follow it (do not assume it was loaded automatically).
+
+Confirmed review findings F1 + F2 (AC2) in src/explain/contract.ts validateExplanation — I reproduced them with a test run:
+- Accepted but wrong: 'Not available because it overlaps the "Physics Exam" booking.' (invented booking name); "Not available because the room is blocked." for reasonCode OVERLAP (wrong reason); "The room is booked." for an AVAILABLE decision.
+- Rejected but correct: "Cedar Suite isn't available from 11:00 to 12:00 because the room is blocked." (contraction not treated as negation; a real model, claude-sonnet-5-5, writes "isn't" often); "Blocked Rehearsal Room is available from 11:00 to 12:00." for an available decision (the room label itself is scanned); "Boreal Lab is available from 9:30 to 10:00." for start 09:30 (no time normalisation).
+
+Make the smallest change in validateExplanation only:
+1. Remove the room label from the text (case-insensitive) before the status, reason and sentence checks.
+2. Treat "isn't available", "is not available", "not available", "unavailable", "cannot be booked" as negative; never read them as "available".
+3. Normalise times to HH:MM before comparing (9:30 -> 09:30).
+4. Require a reason keyword that matches reasonCode: OVERLAP -> overlap/overlaps/conflict; ROOM_BLOCKED -> blocked; TOO_LONG -> 120 or "too long"/exceed; PAST_START -> "current time"/passed/past/"already"; INVALID_RANGE -> "end" and "start"; INVALID_TIME -> valid/invalid/time; NO_ROOM -> room; AVAILABLE -> available/free. Reject a reason keyword that belongs to a different reasonCode (e.g. "blocked" for OVERLAP).
+5. Reject quoted text ("...") and words booked/occupied for an AVAILABLE decision.
+Then add regression tests to src/explain/explain.test.ts for all six example sentences above (expected: the three wrong ones rejected, the three correct ones accepted). Keep every existing assertion and the mock adapter texts working. Do not touch other files. You cannot run commands; I will run the tests. Describe the change and list anything I did not ask for.

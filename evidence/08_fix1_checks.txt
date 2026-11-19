@@ -1,0 +1,6 @@
+$ npx vitest run && npm run typecheck && npm run lint && npm run build   # after fix 1 (validator)
+ Test Files  2 passed (2)
+      Tests  53 passed (53)
+typecheck exit: 0
+lint exit: 0
+✓ built in 1.44s

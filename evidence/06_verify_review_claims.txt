@@ -1,0 +1,19 @@
+$ npx vitest run src/explain/zz_verify_review.test.ts   # temporary verification of the reviewer claims
+F1a {"ok":true}
+F1b {"ok":true}
+F1c {"ok":true}
+F2a {"ok":false,"error":"Explanation says available but the room is unavailable."}
+F2b {"ok":false,"error":"Explanation says unavailable but the room is available."}
+F2c {"ok":false,"error":"Explanation mentions an unsupplied time (9:30)."}
+F7 {"source":"fallback","explanation":"The room is available for the requested time.","error":"pending.catch is not a function"}
+      Tests  7 passed (7)
+
+$ grep -n "explain" README.md AGENTS.md   # F8 docs
+(no mention of the explain feature)
+
+$ grep -n "Mock model behaviour\|import.meta.env" src/components/ExplainPanel.tsx   # F6
+53:            Mock model behaviour (demo)
+
+$ grep -n "no-key\|MockMode" src/explain/adapters.ts   # F4
+11:export type MockMode = "normal" | "slow" | "error" | "invalid";
+62:export function createMockAdapter(mode: MockMode, delayMs = 300): LlmAdapter {

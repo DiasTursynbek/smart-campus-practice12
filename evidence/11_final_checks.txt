@@ -1,0 +1,77 @@
+$ npx vitest run --reporter=verbose && npm run typecheck && npm run lint && npm run build   # FINAL (after fix 1 + fix 2)
+
+ RUN  v2.1.9 <project>
+
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T01 660-720 touching after' ('AC4') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T02 540-570 starts now' ('AC1') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T03 720-720 zero duration' ('AC1') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T04 750-720 reversed' ('AC1') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T05 1380-1441 past day end' ('AC1') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T06 720-840 exactly 120 min' ('AC2') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T07 720-841 121 min' ('AC2') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T08 570-600 touching before' ('AC4') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T09 630-690 partial overlap' ('AC4') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T10 570-690 contains booking' ('AC4') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T11 615-645 inside booking' ('AC4') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T12 600-660 identical interval' ('AC4') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T13 660-720 room blocked' ('AC3') -> 'unavailable'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T14 630-690 no bookings' ('AC4') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T15 541-571 one minute after now' ('AC1') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T16 1380-1440 ends at day end' ('AC1') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T17 600-660 booking in another room' ('AC4') -> 'available'
+ ✓ src/availability.test.ts > checkAvailability: case table (AC1-AC4) with unchanged data (AC5) > 'T18 -10-30 negative start' ('AC1') -> 'unavailable'
+ ✓ src/availability.test.ts > AC5: decision does not change booking data > T19 an Available decision does not save the candidate, and repeated checks give the same result
+ ✓ src/availability.test.ts > Integration: page data and time parsing with the real booking logic > T20 Boreal Lab sample data: 11:00-12:00 available, 10:30-11:30 overlaps; blocked Cedar Suite rejected
+ ✓ src/availability.test.ts > getInputHints: AC1 inline hints agree with checkAvailability (AC6 feedback) > T22 start at or before now is flagged (AC1: start must be after current time); start after now is not
+ ✓ src/availability.test.ts > getInputHints: AC1 inline hints agree with checkAvailability (AC6 feedback) > T23 reversed or zero-length interval is flagged (AC1: start < end); a valid interval is not
+ ✓ src/availability.test.ts > getInputHints: AC1 inline hints agree with checkAvailability (AC6 feedback) > T24 an unparsed (null) field shows no hint, as before the refactoring
+ ✓ src/availability.test.ts > getInputHints: AC1 inline hints agree with checkAvailability (AC6 feedback) > T25 a hint is raised exactly when checkAvailability rejects for the same AC1 reason
+ ✓ src/availability.test.ts > getInputHints: R1 missing current time (AC1/AC6) > T26 a null current time sets currentMissing and does not flag startInvalid
+ ✓ src/availability.test.ts > getInputHints: R1 missing current time (AC1/AC6) > T27 a valid current time gives currentMissing false and unchanged start/interval results
+ ✓ src/availability.test.ts > Regression (Practice #09) > T21 BUG-B: an unsorted bookings array keeps its order, content and object references (AC5)
+ ✓ src/explain/explain.test.ts > explanation agrees with the deterministic status > available
+ ✓ src/explain/explain.test.ts > explanation agrees with the deterministic status > overlap
+ ✓ src/explain/explain.test.ts > explanation agrees with the deterministic status > blocked room
+ ✓ src/explain/explain.test.ts > explanation agrees with the deterministic status > invalid time
+ ✓ src/explain/explain.test.ts > explanation agrees with the deterministic status > past time
+ ✓ src/explain/explain.test.ts > input validation > accepts a valid input
+ ✓ src/explain/explain.test.ts > input validation > rejects empty room label and does not call the adapter
+ ✓ src/explain/explain.test.ts > input validation > rejects an overly long room label
+ ✓ src/explain/explain.test.ts > input validation > rejects bad times, unknown code and status/code disagreement
+ ✓ src/explain/explain.test.ts > output validation > rejects empty, too long, and more than two sentences
+ ✓ src/explain/explain.test.ts > output validation > rejects contradictions
+ ✓ src/explain/explain.test.ts > output validation > rejects invented times but allows start and end
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > rejects an invented booking name
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > rejects a reason that does not match the reason code
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > rejects 'booked' for an available decision
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > accepts a contraction as negation
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > does not scan the room label
+ ✓ src/explain/explain.test.ts > output validation regressions (F1, F2) > normalises times before comparing
+ ✓ src/explain/explain.test.ts > failure handling > times out on the slow model and falls back
+ ✓ src/explain/explain.test.ts > failure handling > times out even if the adapter ignores the abort signal
+ ✓ src/explain/explain.test.ts > failure handling > falls back on a simulated API failure
+ ✓ src/explain/explain.test.ts > failure handling > rejects invalid model output (contradicting text)
+ ✓ src/explain/explain.test.ts > failure handling > rejects non-string adapter output
+ ✓ src/explain/explain.test.ts > prompt injection and immutability > a hostile room label cannot flip the status
+ ✓ src/explain/explain.test.ts > prompt injection and immutability > the prompt keeps the label inside <data> as JSON and escapes tag closing
+ ✓ src/explain/explain.test.ts > prompt injection and immutability > never mutates its input, the decision or the booking data
+
+ Test Files  2 passed (2)
+      Tests  53 passed (53)
+   Start at  15:10:14
+   Duration  583ms (transform 78ms, setup 0ms, collect 110ms, tests 67ms, environment 0ms, prepare 97ms)
+
+
+> vite-react-typescript-starter@0.0.0 typecheck
+> tsc --noEmit -p tsconfig.app.json
+
+typecheck exit: 0
+
+> vite-react-typescript-starter@0.0.0 lint
+> eslint .
+
+lint exit: 0
+dist/assets/index-De5gRyZF.js   167.17 kB │ gzip: 53.08 kB
+✓ built in 1.06s
+$ npm audit --omit=dev
+found 0 vulnerabilities

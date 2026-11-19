@@ -1,0 +1,141 @@
+--- ../ai/snap_before_fix1/src/explain/contract.ts	2026-11-19 15:01:24
++++ src/explain/contract.ts	2026-11-19 15:09:02
+@@ -28,6 +28,23 @@
+ // Any clock-like token inside generated text (used to detect invented times).
+ const TIME_IN_TEXT = /\b\d{1,2}:\d{2}\b/g;
+ 
++const NEGATIVE_SRC = "\\b(?:isn['’]t available|is not available|not available|unavailable|cannot be booked)\\b";
++const NEGATIVE = new RegExp(NEGATIVE_SRC);
++const NEGATIVE_G = new RegExp(NEGATIVE_SRC, "g");
++
++const REASON_KEYWORDS: Record<ReasonCode, RegExp> = {
++  OVERLAP: /\b(overlap\w*|conflict\w*)\b/,
++  ROOM_BLOCKED: /\bblocked\b/,
++  TOO_LONG: /\b120\b|too long|\bexceed\w*/,
++  PAST_START: /current time|\bpassed\b|\bpast\b|\balready\b/,
++  INVALID_RANGE: /^(?=[\s\S]*\bend\b)(?=[\s\S]*\bstart\b)/,
++  INVALID_TIME: /\b(valid|invalid|time)\b/,
++  NO_ROOM: /\broom\b/,
++  AVAILABLE: /\b(available|free)\b/,
++};
++// Only these keywords are specific enough to reject when they belong to another reason code.
++const DISTINCT_REASONS: readonly ReasonCode[] = ["OVERLAP", "ROOM_BLOCKED", "TOO_LONG", "PAST_START"];
++
+ export function validateExplainInput(input: ExplainInput): ValidationResult {
+   // Defensive: callers may pass data that does not match the static type.
+   const i = input as unknown as Record<string, unknown> | null;
+@@ -68,25 +85,50 @@
+     return { ok: false, error: `Explanation is longer than ${MAX_EXPLANATION} characters.` };
+   }
+ 
+-  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
++  // The room label is data, not a claim: remove it before any check, and pad times to HH:MM.
++  const label = typeof input.roomLabel === "string" ? input.roomLabel.toLowerCase() : "";
++  const withoutLabel = label.trim().length > 0 ? text.toLowerCase().split(label).join(" ") : text.toLowerCase();
++  const lower = withoutLabel.replace(TIME_IN_TEXT, (t) => t.padStart(5, "0"));
++
++  const sentences = lower.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+   if (sentences.length > 2) {
+     return { ok: false, error: "Explanation has more than two sentences." };
+   }
+ 
+-  // Remove negated forms first so "not available" is not read as "available".
+-  const lower = text.toLowerCase();
+-  const claimsUnavailable = /\b(unavailable|not available|blocked)\b/.test(lower);
+-  const claimsAvailable = /\bavailable\b/.test(
+-    lower.replace(/\bnot available\b/g, " ").replace(/\bunavailable\b/g, " ")
+-  );
++  if (/["“”]/.test(lower)) {
++    return { ok: false, error: "Explanation contains quoted text." };
++  }
++
++  // A hostile label that itself reads "available" must not pass for an unavailable decision.
++  if (!input.isAvailable && /\bavailable\b/.test(label)) {
++    return { ok: false, error: "Room label reads as available but the room is unavailable." };
++  }
++
++  // Negated forms are stripped first so "not available" is never read as "available".
++  const claimsUnavailable = NEGATIVE.test(lower) || /\bblocked\b/.test(lower);
++  const claimsAvailable = /\bavailable\b/.test(lower.replace(NEGATIVE_G, " "));
+   if (!input.isAvailable && claimsAvailable) {
+     return { ok: false, error: "Explanation says available but the room is unavailable." };
+   }
+   if (input.isAvailable && claimsUnavailable) {
+     return { ok: false, error: "Explanation says unavailable but the room is available." };
+   }
++  if (input.isAvailable && /\b(booked|occupied)\b/.test(lower)) {
++    return { ok: false, error: "Explanation says booked or occupied but the room is available." };
++  }
+ 
+-  const times = text.match(TIME_IN_TEXT) ?? [];
++  // Reason: a keyword of the right code is required when a reason is given (always for AVAILABLE),
++  // and a distinctive keyword of another code is always rejected.
++  if ((input.isAvailable || /\bbecause\b/.test(lower)) && !REASON_KEYWORDS[input.reasonCode].test(lower)) {
++    return { ok: false, error: "Explanation does not give the reason for the decision." };
++  }
++  for (const code of DISTINCT_REASONS) {
++    if (code !== input.reasonCode && REASON_KEYWORDS[code].test(lower)) {
++      return { ok: false, error: `Explanation gives a reason that does not match ${input.reasonCode}.` };
++    }
++  }
++
++  const times = lower.match(TIME_IN_TEXT) ?? [];
+   for (const t of times) {
+     if (t !== input.start && t !== input.end) {
+       return { ok: false, error: `Explanation mentions an unsupplied time (${t}).` };
+--- ../ai/snap_before_fix1/src/explain/explain.test.ts	2026-11-19 15:02:19
++++ src/explain/explain.test.ts	2026-11-19 15:09:06
+@@ -149,7 +149,53 @@
+   it("rejects invented times but allows start and end", () => {
+     expect(validateExplanation("Not available from 10:30 to 11:30.", input).ok).toBe(true);
+     expect(validateExplanation("Not available because of a 12:00 booking.", input).ok).toBe(false);
++  });
++});
++
++describe("output validation regressions (F1, F2)", () => {
++  const overlap: ExplainInput = {
++    roomLabel: "Cedar Suite",
++    start: "10:00",
++    end: "11:00",
++    isAvailable: false,
++    reasonCode: "OVERLAP",
++  };
++  const blocked: ExplainInput = { ...overlap, start: "11:00", end: "12:00", reasonCode: "ROOM_BLOCKED" };
++  const free = (roomLabel: string, start: string, end: string): ExplainInput => ({
++    roomLabel,
++    start,
++    end,
++    isAvailable: true,
++    reasonCode: "AVAILABLE",
++  });
++
++  it("rejects an invented booking name", () => {
++    const text = 'Not available because it overlaps the "Physics Exam" booking.';
++    expect(validateExplanation(text, overlap).ok).toBe(false);
++  });
++
++  it("rejects a reason that does not match the reason code", () => {
++    expect(validateExplanation("Not available because the room is blocked.", overlap).ok).toBe(false);
+   });
++
++  it("rejects 'booked' for an available decision", () => {
++    expect(validateExplanation("The room is booked.", free("Cedar Suite", "10:00", "11:00")).ok).toBe(false);
++  });
++
++  it("accepts a contraction as negation", () => {
++    const text = "Cedar Suite isn't available from 11:00 to 12:00 because the room is blocked.";
++    expect(validateExplanation(text, blocked).ok).toBe(true);
++  });
++
++  it("does not scan the room label", () => {
++    const text = "Blocked Rehearsal Room is available from 11:00 to 12:00.";
++    expect(validateExplanation(text, free("Blocked Rehearsal Room", "11:00", "12:00")).ok).toBe(true);
++  });
++
++  it("normalises times before comparing", () => {
++    const text = "Boreal Lab is available from 9:30 to 10:00.";
++    expect(validateExplanation(text, free("Boreal Lab", "09:30", "10:00")).ok).toBe(true);
++  });
+ });
+ 
+ describe("failure handling", () => {

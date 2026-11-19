@@ -1,0 +1,5 @@
+claude_code_version: 2.1.322
+model: claude-sonnet-5-5
+tools available: ['Edit', 'Glob', 'Grep', 'Read', 'Write']
+tool calls: Read(AGENTS.md), Read(src/explain/contract.ts), Read(src/explain/explain.test.ts), Grep(.), Grep(.), Edit(src/explain/contract.ts), Edit(src/explain/contract.ts), Edit(src/explain/explain.test.ts)
+duration: 72.8 s, turns: 9

@@ -1,0 +1,5 @@
+claude_code_version: 2.1.322
+model: claude-sonnet-5-5
+tools available: ['Edit', 'Glob', 'Grep', 'Read', 'Write']
+tool calls: Read(AGENTS.md), Glob(src/**/*), Read(src/types.ts), Read(src/availability.ts), Read(src/App.tsx), Read(src/components/ResultPanel.tsx), Read(src/timeUtils.ts), Read(src/sampleData.ts), Grep(toEqual|toStrictEqual|toMatchObject), Edit(src/types.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Edit(src/availability.ts), Write(src/explain/contract.ts), Write(src/explain/prompt.ts), Write(src/explain/adapters.ts), Write(src/explain/explainAvailability.ts), Write(src/components/ExplainPanel.tsx), Edit(src/App.tsx), Edit(src/App.tsx), Edit(src/App.tsx), Read(src/availability.test.ts), Write(src/explain/explain.test.ts), Edit(src/explain/explain.test.ts)
+duration: 120.4 s, turns: 30

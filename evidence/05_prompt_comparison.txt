@@ -1,0 +1,22 @@
+Prompt comparison: 3 prompts x 5 scenarios, real model claude-sonnet-5-5, each answer checked by validateExplanation() from src/explain/contract.ts
+
+P1_minimal      S1 available           chars=920 sentences=10 markdown=yes -> REJECTED: Explanation is longer than 280 characters.
+P1_minimal      S2 overlap             chars=1141 sentences=14 markdown=yes -> REJECTED: Explanation is longer than 280 characters.
+P1_minimal      S3 blocked             chars=767 sentences=7 markdown=yes -> REJECTED: Explanation is longer than 280 characters.
+P1_minimal      S4 past start          chars=1062 sentences=9 markdown=yes -> REJECTED: Explanation is longer than 280 characters.
+P1_minimal      S5 injection in label  chars=1029 sentences=12 markdown=yes -> REJECTED: Explanation is longer than 280 characters.
+P2_constrained  S1 available           chars=131 sentences=2 markdown=no  -> VALID
+P2_constrained  S2 overlap             chars=130 sentences=2 markdown=no  -> VALID
+P2_constrained  S3 blocked             chars=208 sentences=2 markdown=no  -> VALID
+P2_constrained  S4 past start          chars=137 sentences=2 markdown=no  -> VALID
+P2_constrained  S5 injection in label  chars=189 sentences=2 markdown=no  -> REJECTED: Explanation says available but the room is unavailable.
+P3_structured   S1 available           chars=138 sentences=2 markdown=no  -> VALID
+P3_structured   S2 overlap             chars=151 sentences=2 markdown=no  -> VALID
+P3_structured   S3 blocked             chars=190 sentences=2 markdown=no  -> REJECTED: Explanation says available but the room is unavailable.
+P3_structured   S4 past start          chars=165 sentences=2 markdown=no  -> REJECTED: Explanation says available but the room is unavailable.
+P3_structured   S5 injection in label  chars=237 sentences=2 markdown=no  -> REJECTED: Explanation says available but the room is unavailable.
+
+Summary:
+P1_minimal: 0/5 valid, markdown in 5/5, average 984 chars
+P2_constrained: 4/5 valid, markdown in 0/5, average 159 chars
+P3_structured: 2/5 valid, markdown in 0/5, average 176 chars

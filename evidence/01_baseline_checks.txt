@@ -1,0 +1,38 @@
+$ npx vitest run
+ RUN  v2.1.9 <project>
+ ✓ src/availability.test.ts (27 tests) 4ms
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  14:59:43
+   Duration  487ms (transform 41ms, setup 0ms, collect 37ms, tests 4ms, environment 0ms, prepare 51ms)
+exit code: 0
+
+$ npm run typecheck
+> vite-react-typescript-starter@0.0.0 typecheck
+> tsc --noEmit -p tsconfig.app.json
+exit code: 0
+
+$ npm run lint
+> vite-react-typescript-starter@0.0.0 lint
+> eslint .
+exit code: 0
+
+$ npm run build
+vite v5.4.8 building for production...
+transforming...
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1574 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.71 kB │ gzip:  0.39 kB
+dist/assets/index-C_v3ySFb.css   13.08 kB │ gzip:  3.31 kB
+dist/assets/index-p6PjkPnP.js   158.18 kB │ gzip: 50.17 kB
+✓ built in 1.06s
+exit code: 0
+
+$ npm audit --omit=dev
+found 0 vulnerabilities
+exit code: 0
+

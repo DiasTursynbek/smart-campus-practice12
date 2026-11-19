@@ -1,0 +1,5 @@
+claude_code_version: 2.1.322
+model: claude-sonnet-5-5
+tools available: ['Glob', 'Grep', 'Read']
+tool calls: Glob({README.md,AGENTS.md,package.json,src/**/*.{ts,tsx}}), Read(README.md), Read(AGENTS.md), Glob(src/**/*), Glob(*), Read(src/App.tsx), Read(src/availability.ts), Read(src/timeUtils.ts), Read(src/availability.test.ts), Read(.bolt/prompt), Grep("(test|typecheck|lint|build)"|vitest|"include"), Read(tsconfig.app.json), Read(src/sampleData.ts), Read(src/components/ResultPanel.tsx), Grep(status: "(available|unavailable)"), Read(package.json)
+duration: 93.4 s, turns: 17
